@@ -21,9 +21,9 @@ const KeyWords = ({
   fetchData: () => Promise<void>;
 }) => {
   return (
-    <form onSubmit={(e) => e.preventDefault()} className="mb-10">
+    <div className="mb-10">
       <h2 className="text-lg font-[500] mb-2">Add Keywords:</h2>
-      <div className="flex gap-2 mb-4">
+      <form onSubmit={(e) => e.preventDefault()} className="flex gap-2 mb-4">
         <Input
           type="text"
           value={newKeyword}
@@ -31,11 +31,14 @@ const KeyWords = ({
           placeholder="Enter a keyword"
           className="flex-grow"
         />
-        <Button onClick={handleAddKeyword}>
+        <Button type="button" onClick={handleAddKeyword}>
           <Plus className="mr-2 h-4 w-4" /> Add Keyword
         </Button>
-      </div>
-      <div className="flex gap-2 items-center">
+      </form>
+      <form
+        onSubmit={(e) => e.preventDefault()}
+        className="flex gap-2 items-center"
+      >
         <Input
           type="number"
           value={page}
@@ -44,7 +47,7 @@ const KeyWords = ({
           className="w-32"
           min={1}
         />
-        <Button onClick={fetchData} disabled={isLoading}>
+        <Button type="button" onClick={fetchData} disabled={isLoading}>
           {isLoading ? (
             <span className="animate-spin mr-2">⏳</span>
           ) : (
@@ -52,8 +55,8 @@ const KeyWords = ({
           )}
           {isLoading ? "Fetching..." : "Fetch Data"}
         </Button>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 };
 
