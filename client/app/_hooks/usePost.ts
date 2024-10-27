@@ -1,4 +1,5 @@
 import { useState } from "react";
+import useLocalStorage from "./useLocalstorage";
 
 interface UsePostResponse<T> {
   data: T | null;
@@ -6,8 +7,8 @@ interface UsePostResponse<T> {
   post: (url: string, body: Record<string, unknown>) => Promise<void>;
 }
 
-const usePost = <T,>(): UsePostResponse<T> => {
-  const [data, setData] = useState<T | null>(null);
+const usePost = <T>(): UsePostResponse<T> => {
+  const [data, setData] = useLocalStorage<T | null>("data", null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const post = async (url: string, body: Record<string, unknown>) => {
