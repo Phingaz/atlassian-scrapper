@@ -20,7 +20,7 @@ const Data = ({ scrapedData }: { scrapedData: TScrapedResult }) => {
   };
 
   return (
-    <SectionWrapper header="Result:">
+    <SectionWrapper header="Results">
       {Object.keys(scrapedData).length > 0 && (
         <>
           {Object.entries(scrapedData)?.map(([keyword, data]) => (

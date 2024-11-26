@@ -30,7 +30,7 @@ const Form = () => {
   const isLoading = formPost.loading;
 
   return (
-    <SectionWrapper header="Select keywords to fetch">
+    <SectionWrapper header="Select keywords to fetch" className="w-full">
       <div className="space-y-6">
         <div className="flex flex-wrap gap-2">
           <AnimatePresence>
