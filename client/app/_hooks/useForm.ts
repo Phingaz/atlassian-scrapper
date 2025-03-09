@@ -3,6 +3,7 @@ import React from "react";
 import { toast } from "sonner";
 import { API_URL } from "@/lib/utils";
 import { useMain } from "../_context/Main";
+import useSocket from "./useSocket";
 
 const useForm = () => {
   const {
@@ -15,7 +16,10 @@ const useForm = () => {
     setSelectedKeywords,
     page,
     setError,
+    minutes,
   } = useMain();
+
+  const socket = useSocket();
 
   const handleAddKeyword = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -71,9 +75,13 @@ const useForm = () => {
 
     try {
       await formPost.post(`${API_URL}/scrape`, {
-        keywords: selectedKeywords,
         page,
+        keywords: selectedKeywords,
       });
+
+      if (minutes[0] !== 0) {
+        socket.sendMessage(minutes[0].toString());
+      }
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);

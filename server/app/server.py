@@ -1,15 +1,12 @@
 import uvicorn
-import logging
-from fastapi import FastAPI
-from fastapi.responses import JSONResponse
-import httpx
-from bs4 import BeautifulSoup
+import asyncio
 from typing import List
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from app.logger import logger
 from pydantic import BaseModel
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+from app.utils import perform_scraping
+from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 class ScraperRequest(BaseModel):
     page: int
@@ -30,6 +27,8 @@ app.add_middleware(
     allow_headers=["*"],
 )   
 
+feeds = []
+
 @app.get("/healthcheck")
 async def healthcheck():
     logger.info("Health check requested.")
@@ -38,46 +37,51 @@ async def healthcheck():
 @app.post("/scrape")
 async def scrape(request: ScraperRequest):
     logger.info(f"Scrape request received: {request}")
-    results = {}
-
-    async with httpx.AsyncClient() as client:
-        for keyword in request.keywords: 
-            logger.info(f"Scraping keyword: {keyword}")
-            keyword_results = []
-            page = request.page if request.page > 0 else 1
-            
-            for p in range(1, page + 1):
-                url = f"https://community.atlassian.com/t5/forums/searchpage/tab/message?q={keyword}&page={p}&sort_by=-topicPostDate&collapse_discussion=true&search_type=thread"
-                logger.info(f"Fetching URL: {url}")
-                response = await client.get(url)
-                
-                if response.status_code == 200:
-                    logger.info(f"Successfully fetched page {p} for keyword '{keyword}'.")
-                    soup = BeautifulSoup(response.content, 'html.parser')
-                    threads = soup.find_all('li', class_='atl-post-list__tile')
-                    
-                    for thread in threads:
-                        h3 = thread.find('h3', class_='atl-post-list__tile__title')
-                        if h3 and h3.find('a'):
-                            a = f"https://community.atlassian.com{h3.find('a')['href']}"
-                            metric = thread.find_all('span', class_='atl-post-metric')[-1]
-                            date_span = metric.find_all('span', attrs={'data-tooltip': True})[-1]
-                            date = date_span['data-tooltip']
-                            dateValue = date_span.text.strip()
-                            keyword_results.append({"title": h3.text.strip(), "link": a, "date": date, "dateValue": dateValue})
-                    logger.info(f"Found {len(threads)} threads for keyword '{keyword}' on page {p}.")
-                else:
-                    logger.error(f"Failed to retrieve page {p} for keyword '{keyword}'. Status code: {response.status_code}")
-                    keyword_results.append({"error": f"Failed to retrieve page {p} for keyword '{keyword}'. Status code: {response.status_code}"})
-                    
-            results[keyword] = keyword_results
-            logger.info(f"Completed scraping for keyword: {keyword}")
-
-    logger.info("Scraping completed for all keywords.")
+    results = await perform_scraping(request.keywords, request.page, feeds)
     return JSONResponse(content=results)
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    logger.info(f"Client connected. {websocket.client}")
+
+    try:
+        while True:
+            data = await websocket.receive_text()
+            try:
+                interval = int(data)
+                if not (5 <= interval <= 30):
+                    raise ValueError
+            except ValueError:
+                await websocket.send_text("Please provide a number between 5 and 30.")
+                continue
+
+            await websocket.send_text(f"Results will be updated every {interval} minutes.")
+
+            async def periodic_fetch():
+                while True:
+                    results = []
+                    for feed in feeds:
+                        result = await fetch_feed(feed)
+                        if result:
+                            results.append(result)
+                    await websocket.send_text(f"Fetched data from feeds: {results}")
+                    print(f"Fetched data from feeds: {results}")
+                    await asyncio.sleep(1 * 60)
+
+            # Run the periodic fetch in the background
+            fetch_task = asyncio.create_task(periodic_fetch())
+
+            try:
+                while True:  # Keep the connection open until the client disconnects
+                    await asyncio.sleep(1)
+            except WebSocketDisconnect:
+                fetch_task.cancel()  # Stop the periodic fetching when the client disconnects
+                logger.info("Client disconnected.")
+                break
+
+    except WebSocketDisconnect:
+        logger.info("Client disconnected.")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=3001, reload=True)
-
-
-# uvicorn app.server:app --host 0.0.0.0 --port 3001 --reload

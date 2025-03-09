@@ -3,6 +3,7 @@ import "./globals.css";
 import { Poppins } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { MainCtxProvider } from "./_context/Main";
+import { ThemeProvider } from "./_context/ThemeProvider";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -24,7 +25,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={poppins.className}>
-        <MainCtxProvider>{children}</MainCtxProvider>
+        <ThemeProvider enableSystem attribute="class" defaultTheme="system">
+          <MainCtxProvider>{children}</MainCtxProvider>
+        </ThemeProvider>
         <Toaster richColors />
       </body>
     </html>

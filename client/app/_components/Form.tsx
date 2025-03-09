@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import useForm from "../_hooks/useForm";
 import { useMain } from "../_context/Main";
 import SectionWrapper from "./SectionWrapper";
+import { Slider } from "@/components/ui/slider";
 
 const Form = () => {
   const {
@@ -23,8 +24,10 @@ const Form = () => {
     selectedKeywords,
     newKeyword,
     page,
-    setNewKeyword,
     setPage,
+    minutes,
+    setMinutes,
+    setNewKeyword,
   } = useMain();
 
   const isLoading = formPost.loading;
@@ -77,29 +80,49 @@ const Form = () => {
           </Button>
         </form>
 
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
-          <div className="w-full">
-            <label htmlFor="page" className="text-sm font-medium mb-2 block">
-              Number of pages to fetch
+        <div className="flex flex-col gap-4">
+          <span>
+            <label
+              htmlFor="page"
+              className="text-sm font-medium mb-2 flex gap-1"
+            >
+              Update interval (
+              <p className="text-[16px] font-bold -ml-1">{minutes[0]}</p>
+              minutes)
             </label>
-            <Input
-              id="page"
-              type="number"
-              value={page}
-              onChange={(e) => setPage(Number(e.target.value))}
-              placeholder="Enter page number"
-              min={1}
-              className="w-full"
+            <Slider
+              max={30}
+              step={5}
+              value={minutes}
+              defaultValue={minutes}
+              onValueChange={(value) => setMinutes(value)}
             />
+          </span>
+
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
+            <div className="w-full">
+              <label htmlFor="page" className="text-sm font-medium mb-2 block">
+                Number of pages to fetch
+              </label>
+              <Input
+                id="page"
+                type="number"
+                value={page}
+                onChange={(e) => setPage(Number(e.target.value))}
+                placeholder="Enter page number"
+                min={1}
+                className="w-full"
+              />
+            </div>
+            <Button onClick={fetchData} disabled={isLoading} className="w-full">
+              {isLoading ? (
+                <Loader2 size={16} className="animate-spin mr-2" />
+              ) : (
+                <Search className="mr-2 h-4 w-4" />
+              )}
+              {isLoading ? "Fetching..." : "Fetch Data"}
+            </Button>
           </div>
-          <Button onClick={fetchData} disabled={isLoading} className="w-full">
-            {isLoading ? (
-              <Loader2 size={16} className="animate-spin mr-2" />
-            ) : (
-              <Search className="mr-2 h-4 w-4" />
-            )}
-            {isLoading ? "Fetching..." : "Fetch Data"}
-          </Button>
         </div>
       </div>
     </SectionWrapper>

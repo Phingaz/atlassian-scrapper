@@ -7,9 +7,13 @@ import { TScrapedResult } from "../page";
 import DataCard from "./DataCard";
 import SectionWrapper from "./SectionWrapper";
 import useLocalStorage from "../_hooks/useLocalstorage";
+import { CONSTANTS } from "@/lib/utils";
 
 const Data = ({ scrapedData }: { scrapedData: TScrapedResult }) => {
-  const [openCards, setOpenCards] = useLocalStorage<string[]>("openCards", []);
+  const [openCards, setOpenCards] = useLocalStorage<string[]>(
+    CONSTANTS.LOCAL_STORAGE_KEY,
+    []
+  );
 
   const toggleCard = (keyword: string) => {
     setOpenCards((prev) =>

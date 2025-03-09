@@ -9,6 +9,8 @@ export type TMainCtx = {
   setKeywords: React.Dispatch<React.SetStateAction<string[]>>;
   page: number;
   setPage: React.Dispatch<React.SetStateAction<number>>;
+  minutes: number[];
+  setMinutes: React.Dispatch<React.SetStateAction<number[]>>;
   newKeyword: string;
   setNewKeyword: React.Dispatch<React.SetStateAction<string>>;
   selectedKeywords: string[];
@@ -25,6 +27,8 @@ const Main = React.createContext<TMainCtx>({
   setKeywords: () => {},
   page: 1,
   setPage: () => {},
+  minutes: [5],
+  setMinutes: () => {},
   newKeyword: "",
   setNewKeyword: () => {},
   selectedKeywords: [],
@@ -50,6 +54,7 @@ export function MainCtxProvider({
   const [keywords, setKeywords] = useLocalStorage<string[]>("default", ["jql"]);
   const [page, setPage] = useLocalStorage<number>("page", 1);
   const [newKeyword, setNewKeyword] = React.useState("");
+  const [minutes, setMinutes] = React.useState([5]);
   const [selectedKeywords, setSelectedKeywords] = useLocalStorage<string[]>(
     "selectedKeyword",
     []
@@ -61,6 +66,8 @@ export function MainCtxProvider({
     setKeywords,
     page,
     setPage,
+    minutes,
+    setMinutes,
     newKeyword,
     setNewKeyword,
     selectedKeywords,

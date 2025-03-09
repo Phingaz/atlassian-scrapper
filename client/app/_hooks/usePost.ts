@@ -13,7 +13,6 @@ const usePost = <T>(): UsePostResponse<T> => {
 
   const post = async (url: string, body: Record<string, unknown>) => {
     setLoading(true);
-
     try {
       const response = await fetch(url, {
         method: "POST",

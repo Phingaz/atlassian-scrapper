@@ -1,6 +1,6 @@
 import React from "react";
 
-const useLocalStorage = <T,>(
+const useLocalStorage = <T>(
   key: string,
   intialValue: T
 ): [T, React.Dispatch<React.SetStateAction<T>>] => {
@@ -16,5 +16,8 @@ const useLocalStorage = <T,>(
 
   return [value, setValue];
 };
+
+export const clearLocalStorage = (key: string) =>
+  window.localStorage.removeItem(key);
 
 export default useLocalStorage;
