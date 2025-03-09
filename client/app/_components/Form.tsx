@@ -19,6 +19,7 @@ const Form = () => {
   } = useForm();
 
   const {
+    features,
     formPost,
     keywords,
     selectedKeywords,
@@ -81,23 +82,25 @@ const Form = () => {
         </form>
 
         <div className="flex flex-col gap-4">
-          <span>
-            <label
-              htmlFor="page"
-              className="text-sm font-medium mb-2 flex gap-1"
-            >
-              Update interval (
-              <p className="text-[16px] font-bold -ml-1">{minutes[0]}</p>
-              minutes)
-            </label>
-            <Slider
-              max={30}
-              step={5}
-              value={minutes}
-              defaultValue={minutes}
-              onValueChange={(value) => setMinutes(value)}
-            />
-          </span>
+          {features.rss && (
+            <span>
+              <label
+                htmlFor="page"
+                className="text-sm font-medium mb-2 flex gap-1"
+              >
+                Update interval (
+                <p className="text-[16px] font-bold -ml-1">{minutes[0]}</p>
+                minutes)
+              </label>
+              <Slider
+                max={30}
+                step={5}
+                value={minutes}
+                defaultValue={minutes}
+                onValueChange={(value) => setMinutes(value)}
+              />
+            </span>
+          )}
 
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
             <div className="w-full">

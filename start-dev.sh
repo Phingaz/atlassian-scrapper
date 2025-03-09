@@ -1,5 +1,9 @@
 #!/bin/bash
 
+#activate the virtual environment
+source server/.venv/Scripts/activate
+echo "Virtual environment activated"
+
 # Start the FastAPI server in development mode
 echo "Starting FastAPI server..."
 cd server

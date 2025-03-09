@@ -3,8 +3,10 @@ import React from "react";
 import usePost from "../_hooks/usePost";
 import { TScrapedData, TScrapedResult } from "../page";
 import useLocalStorage from "../_hooks/useLocalstorage";
+import { FeatureFlagType } from "@/lib/utils";
 
 export type TMainCtx = {
+  features: FeatureFlagType;
   keywords: string[];
   setKeywords: React.Dispatch<React.SetStateAction<string[]>>;
   page: number;
@@ -22,27 +24,13 @@ export type TMainCtx = {
   setFavorites: React.Dispatch<React.SetStateAction<TScrapedData[]>>;
 };
 
-const Main = React.createContext<TMainCtx>({
-  keywords: [],
-  setKeywords: () => {},
-  page: 1,
-  setPage: () => {},
-  minutes: [5],
-  setMinutes: () => {},
-  newKeyword: "",
-  setNewKeyword: () => {},
-  selectedKeywords: [],
-  setSelectedKeywords: () => {},
-  error: null,
-  setError: () => {},
-  formPost: {} as ReturnType<typeof usePost>,
-  favorites: [],
-  setFavorites: () => {},
-});
+const Main = React.createContext<TMainCtx | undefined>(undefined);
 
 export function MainCtxProvider({
+  features,
   children,
 }: React.PropsWithChildren<{
+  features: FeatureFlagType;
   children: React.ReactNode;
 }>) {
   const formPost = usePost<TScrapedResult>();
@@ -62,6 +50,7 @@ export function MainCtxProvider({
   const [error, setError] = React.useState<string | null>(null);
 
   const contextValue = {
+    features,
     keywords,
     setKeywords,
     page,
@@ -82,6 +71,12 @@ export function MainCtxProvider({
   return <Main.Provider value={contextValue}>{children}</Main.Provider>;
 }
 
-export const useMain = () => React.useContext(Main);
+export const useMain = () => {
+  const context = React.useContext(Main);
+  if (!context) {
+    throw new Error("useMain must be used within a MainCtxProvider");
+  }
+  return context;
+};
 
 export default Main;

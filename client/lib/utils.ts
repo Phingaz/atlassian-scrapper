@@ -13,3 +13,9 @@ export const CONSTANTS = {
 
 export const API_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
+
+export const featureFlag = {
+  rss: process.env.NEXT_PUBLIC_FEATURE_RSS,
+};
+
+export type FeatureFlagType = typeof featureFlag;

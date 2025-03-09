@@ -5,7 +5,7 @@ from typing import List, Dict, Any
 
 async def perform_scraping(keywords: List[str], page: int, feeds: [str]) -> Dict[str, Any]:
     results = {}
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(follow_redirects=True) as client:
         for keyword in keywords:
             logger.info(f"Scraping keyword: {keyword}")
             keyword_results = []
